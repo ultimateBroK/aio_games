@@ -1,6 +1,6 @@
 import pygame
 import sys
-from games import SnakeGame, HangmanGame
+from games import SnakeGame, HangmanGame, PongGame
 
 class GameLauncher:
     def __init__(self):
@@ -23,11 +23,13 @@ class GameLauncher:
         # Game options
         snake_text = self.small_font.render("1. Snake Game", True, (255, 255, 255))
         hangman_text = self.small_font.render("2. Hangman", True, (255, 255, 255))
+        pong_text = self.small_font.render("3. Pong", True, (255, 255, 255))
         quit_text = self.small_font.render("Q. Quit", True, (255, 255, 255))
         
         self.screen.blit(snake_text, (self.WIDTH//2 - snake_text.get_width()//2, 250))
         self.screen.blit(hangman_text, (self.WIDTH//2 - hangman_text.get_width()//2, 300))
-        self.screen.blit(quit_text, (self.WIDTH//2 - quit_text.get_width()//2, 400))
+        self.screen.blit(pong_text, (self.WIDTH//2 - pong_text.get_width()//2, 350))
+        self.screen.blit(quit_text, (self.WIDTH//2 - quit_text.get_width()//2, 450))
         
         pygame.display.flip()
 
@@ -44,6 +46,10 @@ class GameLauncher:
                         pygame.display.set_mode((self.WIDTH, self.HEIGHT))  # Reset display
                     elif event.key == pygame.K_2:
                         game = HangmanGame()
+                        game.run()
+                        pygame.display.set_mode((self.WIDTH, self.HEIGHT))  # Reset display
+                    elif event.key == pygame.K_3:
+                        game = PongGame()
                         game.run()
                         pygame.display.set_mode((self.WIDTH, self.HEIGHT))  # Reset display
                     elif event.key == pygame.K_q:
