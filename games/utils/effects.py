@@ -78,80 +78,190 @@ class Transition:
 
 class GamePreview:
     def __init__(self, width, height):
-        self.width = width
-        self.height = height
-        self.preview_size = (200, 150)
+        self.WIDTH = width
+        self.HEIGHT = height
+        self.preview_size = (120, 120)
+        self.preview_surface = pygame.Surface(self.preview_size)
+        self.animation_counter = 0
         
-    def draw(self, surface, game_name, pos):
-        preview = pygame.Surface(self.preview_size)
-        preview.fill((40, 40, 40))
+        # Snake game variables
+        self.snake_dir = (1, 0)
+        self.snake_pos = [(3, 5), (4, 5), (5, 5)]
+        self.food_pos = (7, 5)
+        
+        # Pong game variables
+        self.ball_dx = 1
+        self.ball_dy = 1
+        self.ai_paddle_y = 35
+        self.player_paddle_y = 35
+        
+        # Tetris variables
+        self.current_piece = 0
+        self.piece_y = 0
+        self.fall_counter = 0
+        
+    def draw(self, screen, game_name, position):
+        self.animation_counter = (self.animation_counter + 1) % 60
+        self.preview_surface.fill((0, 0, 0))
         
         if game_name == "Snake Game":
-            self._draw_snake_preview(preview)
+            # Update snake position
+            if self.animation_counter % 10 == 0:
+                # Move snake
+                new_head = (self.snake_pos[-1][0] + self.snake_dir[0],
+                          self.snake_pos[-1][1] + self.snake_dir[1])
+                
+                # Check if snake reached food
+                if new_head == self.food_pos:
+                    self.snake_pos.append(new_head)
+                    self.food_pos = ((self.food_pos[0] + 3) % 10,
+                                   (self.food_pos[1] + 2) % 10)
+                else:
+                    self.snake_pos = self.snake_pos[1:] + [new_head]
+                
+                # Change direction occasionally
+                if self.animation_counter % 30 == 0:
+                    if self.snake_dir == (1, 0):
+                        self.snake_dir = (0, 1)
+                    elif self.snake_dir == (0, 1):
+                        self.snake_dir = (-1, 0)
+                    elif self.snake_dir == (-1, 0):
+                        self.snake_dir = (0, -1)
+                    else:
+                        self.snake_dir = (1, 0)
+            
+            # Draw snake
+            for segment in self.snake_pos:
+                pygame.draw.rect(self.preview_surface, (0, 255, 0),
+                               (segment[0] * 12, segment[1] * 12, 10, 10))
+            
+            # Draw food
+            pygame.draw.rect(self.preview_surface, (255, 0, 0),
+                           (self.food_pos[0] * 12, self.food_pos[1] * 12, 10, 10))
+                           
         elif game_name == "Hangman":
-            self._draw_hangman_preview(preview)
-        elif game_name == "Pong vs AI":
-            self._draw_pong_preview(preview)
+            # Animate hangman drawing
+            progress = (self.animation_counter // 10) % 7
+            
+            # Draw gallows
+            pygame.draw.line(self.preview_surface, (255, 255, 255),
+                           (30, 100), (90, 100), 2)  # Base
+            if progress >= 1:
+                pygame.draw.line(self.preview_surface, (255, 255, 255),
+                               (60, 100), (60, 20), 2)  # Pole
+            if progress >= 2:
+                pygame.draw.line(self.preview_surface, (255, 255, 255),
+                               (60, 20), (80, 20), 2)  # Top
+                pygame.draw.line(self.preview_surface, (255, 255, 255),
+                               (80, 20), (80, 30), 2)  # Rope
+            if progress >= 3:
+                pygame.draw.circle(self.preview_surface, (255, 255, 255),
+                                 (80, 40), 10, 2)  # Head
+            if progress >= 4:
+                pygame.draw.line(self.preview_surface, (255, 255, 255),
+                               (80, 50), (80, 70), 2)  # Body
+            if progress >= 5:
+                pygame.draw.line(self.preview_surface, (255, 255, 255),
+                               (80, 55), (70, 65), 2)  # Left arm
+                pygame.draw.line(self.preview_surface, (255, 255, 255),
+                               (80, 55), (90, 65), 2)  # Right arm
+            if progress >= 6:
+                pygame.draw.line(self.preview_surface, (255, 255, 255),
+                               (80, 70), (70, 85), 2)  # Left leg
+                pygame.draw.line(self.preview_surface, (255, 255, 255),
+                               (80, 70), (90, 85), 2)  # Right leg
+                               
+        elif game_name == "Pong":
+            # Update ball position
+            ball_x = 60 + int(30 * math.sin(self.animation_counter * 0.1))
+            ball_y = 60 + int(20 * math.cos(self.animation_counter * 0.1))
+            
+            # Update AI paddle to follow ball
+            if self.ai_paddle_y + 15 < ball_y:
+                self.ai_paddle_y += 2
+            elif self.ai_paddle_y + 15 > ball_y:
+                self.ai_paddle_y -= 2
+            
+            # Update player paddle to create interesting gameplay
+            target_y = 60 + int(25 * math.sin(self.animation_counter * 0.05))
+            if self.player_paddle_y + 15 < target_y:
+                self.player_paddle_y += 2
+            elif self.player_paddle_y + 15 > target_y:
+                self.player_paddle_y -= 2
+            
+            # Keep paddles in bounds
+            self.ai_paddle_y = max(0, min(self.ai_paddle_y, 90))
+            self.player_paddle_y = max(0, min(self.player_paddle_y, 90))
+            
+            # Draw paddles
+            pygame.draw.rect(self.preview_surface, (255, 255, 255),
+                           (10, self.player_paddle_y, 5, 30))  # Left paddle
+            pygame.draw.rect(self.preview_surface, (255, 255, 255),
+                           (105, self.ai_paddle_y, 5, 30))  # Right paddle
+            
+            # Draw ball with trail effect
+            for i in range(3):
+                trail_x = 60 + int(30 * math.sin((self.animation_counter - i*2) * 0.1))
+                trail_y = 60 + int(20 * math.cos((self.animation_counter - i*2) * 0.1))
+                alpha = 100 - i * 30
+                trail = pygame.Surface((6, 6))
+                trail.fill((255, 255, 255))
+                trail.set_alpha(alpha)
+                self.preview_surface.blit(trail, (trail_x - 3, trail_y - 3))
+            
+            pygame.draw.rect(self.preview_surface, (255, 255, 255),
+                           (ball_x - 3, ball_y - 3, 6, 6))  # Ball
+            
+            # Draw center line
+            for y in range(0, 120, 10):
+                pygame.draw.rect(self.preview_surface, (128, 128, 128),
+                               (58, y, 4, 4))
+                               
         elif game_name == "Tetris":
-            self._draw_tetris_preview(preview)
+            # Tetris pieces with their colors
+            pieces = [
+                ([(0, 0), (0, 1), (0, 2), (0, 3)], (0, 255, 255)),  # I
+                ([(0, 0), (1, 0), (0, 1), (1, 1)], (255, 255, 0)),  # O
+                ([(0, 0), (1, 0), (1, 1), (2, 1)], (255, 0, 0)),    # Z
+                ([(0, 0), (0, 1), (0, 2), (1, 2)], (255, 165, 0))   # L
+            ]
             
-        pygame.draw.rect(preview, (70, 70, 70), preview.get_rect(), 2)
-        surface.blit(preview, pos)
-        
-    def _draw_snake_preview(self, surface):
-        # Draw simple snake representation
-        snake_color = (0, 255, 0)
-        food_color = (255, 0, 0)
-        block_size = 10
-        
-        # Draw snake body
-        for i in range(5):
-            pygame.draw.rect(surface, snake_color, 
-                           (50 + i * block_size, 75, block_size - 1, block_size - 1))
-        
-        # Draw food
-        pygame.draw.rect(surface, food_color, (100, 75, block_size - 1, block_size - 1))
-        
-    def _draw_hangman_preview(self, surface):
-        # Draw gallows and stick figure
-        pygame.draw.line(surface, (255, 255, 255), (50, 130), (150, 130), 2)  # Base
-        pygame.draw.line(surface, (255, 255, 255), (100, 130), (100, 30), 2)  # Pole
-        pygame.draw.line(surface, (255, 255, 255), (100, 30), (130, 30), 2)  # Top
-        pygame.draw.line(surface, (255, 255, 255), (130, 30), (130, 50), 2)  # Rope
-        
-        # Draw stick figure
-        pygame.draw.circle(surface, (255, 255, 255), (130, 60), 10, 2)  # Head
-        pygame.draw.line(surface, (255, 255, 255), (130, 70), (130, 100), 2)  # Body
-        pygame.draw.line(surface, (255, 255, 255), (130, 80), (115, 95), 2)  # Left arm
-        pygame.draw.line(surface, (255, 255, 255), (130, 80), (145, 95), 2)  # Right arm
-        pygame.draw.line(surface, (255, 255, 255), (130, 100), (115, 115), 2)  # Left leg
-        pygame.draw.line(surface, (255, 255, 255), (130, 100), (145, 115), 2)  # Right leg
-        
-    def _draw_pong_preview(self, surface):
-        # Draw paddles and ball
-        pygame.draw.rect(surface, (255, 255, 255), (20, 50, 10, 50))  # Left paddle
-        pygame.draw.rect(surface, (255, 255, 255), (170, 50, 10, 50))  # Right paddle
-        pygame.draw.circle(surface, (255, 255, 255), (100, 75), 5)  # Ball
-        
-        # Draw center line
-        for y in range(0, self.preview_size[1], 20):
-            pygame.draw.rect(surface, (255, 255, 255), (98, y, 4, 10))
+            # Update falling piece
+            self.fall_counter += 1
+            if self.fall_counter >= 20:
+                self.fall_counter = 0
+                self.piece_y += 1
+                if self.piece_y > 8:
+                    self.piece_y = -2
+                    self.current_piece = (self.current_piece + 1) % len(pieces)
             
-    def _draw_tetris_preview(self, surface):
-        # Draw some tetris pieces
-        colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)]
-        block_size = 15
+            # Draw game border
+            pygame.draw.rect(self.preview_surface, (128, 128, 128),
+                           (30, 10, 60, 100), 2)
+            
+            # Draw current falling piece
+            piece, color = pieces[self.current_piece]
+            for block in piece:
+                x, y = block
+                pygame.draw.rect(self.preview_surface, color,
+                               (40 + x * 10, 20 + (y + self.piece_y) * 10, 8, 8))
+            
+            # Draw some fixed pieces at the bottom
+            fixed_blocks = [
+                (40, 90, (255, 0, 0)),
+                (50, 90, (255, 0, 0)),
+                (60, 90, (0, 255, 0)),
+                (70, 90, (0, 255, 0)),
+                (40, 80, (0, 255, 255)),
+                (50, 80, (0, 255, 255)),
+                (60, 80, (255, 165, 0))
+            ]
+            for x, y, color in fixed_blocks:
+                pygame.draw.rect(self.preview_surface, color, (x, y, 8, 8))
         
-        # Draw a few random pieces
-        shapes = [
-            [(0, 0), (1, 0), (2, 0), (3, 0)],  # I piece
-            [(0, 0), (1, 0), (0, 1), (1, 1)],  # O piece
-            [(0, 0), (1, 0), (1, 1), (2, 1)],  # Z piece
-        ]
+        # Draw preview border
+        pygame.draw.rect(self.preview_surface, (128, 128, 128),
+                        (0, 0, self.preview_size[0], self.preview_size[1]), 1)
         
-        for i, shape in enumerate(shapes):
-            color = colors[i % len(colors)]
-            for x, y in shape:
-                pygame.draw.rect(surface, color,
-                               (50 + x * block_size, 40 + y * block_size + i * 30,
-                                block_size - 1, block_size - 1)) 
+        # Draw the preview at the specified position
+        screen.blit(self.preview_surface, position) 

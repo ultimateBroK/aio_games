@@ -8,7 +8,7 @@ class PongGame:
         self.WIDTH = 800
         self.HEIGHT = 600
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
-        pygame.display.set_caption("Pong vs AI")
+        pygame.display.set_caption("Pong")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 48)
         self.small_font = pygame.font.Font(None, 36)
@@ -16,7 +16,11 @@ class PongGame:
         # Game states
         self.MENU = 0
         self.PLAYING = 1
+        self.GAME_OVER = 2  # Thêm trạng thái game over
         self.state = self.MENU
+        
+        # Score limit
+        self.SCORE_LIMIT = 10
         
         # Difficulty settings
         self.difficulties = ["Easy", "Medium", "Hard"]
@@ -154,6 +158,10 @@ class PongGame:
         instructions = self.small_font.render("Press ENTER to start", True, (128, 128, 128))
         self.screen.blit(instructions, (self.WIDTH//2 - instructions.get_width()//2, self.HEIGHT - 100))
         
+        # Thêm nút thoát
+        quit_text = self.small_font.render("ESC - Back to Menu", True, (128, 128, 128))
+        self.screen.blit(quit_text, (20, 20))
+        
         pygame.display.flip()
         
     def draw_game(self):
@@ -170,11 +178,61 @@ class PongGame:
         pygame.draw.rect(self.screen, (255, 255, 255),
                         (self.ball_x, self.ball_y, self.BALL_SIZE, self.BALL_SIZE))
         
-        # Draw scores
+        # Draw scores and player indicators
         player_text = self.font.render(str(self.player_score), True, (255, 255, 255))
         ai_text = self.font.render(str(self.ai_score), True, (255, 255, 255))
+        
+        # Draw player labels
+        player_label = self.small_font.render("PLAYER", True, (128, 128, 128))
+        ai_label = self.small_font.render("AI", True, (128, 128, 128))
+        
+        # Position scores and labels
         self.screen.blit(player_text, (self.WIDTH//4, 50))
         self.screen.blit(ai_text, (3*self.WIDTH//4, 50))
+        self.screen.blit(player_label, (self.WIDTH//4 - player_label.get_width()//2, 20))
+        self.screen.blit(ai_label, (3*self.WIDTH//4 - ai_label.get_width()//2, 20))
+        
+        # Draw difficulty level
+        diff_text = self.small_font.render(f"Difficulty: {self.difficulties[self.selected_difficulty]}", 
+                                         True, (128, 128, 128))
+        self.screen.blit(diff_text, (self.WIDTH//2 - diff_text.get_width()//2, 20))
+        
+        # Draw controls hint
+        controls = self.small_font.render("W/S - Move    ESC - Menu", True, (128, 128, 128))
+        self.screen.blit(controls, (self.WIDTH//2 - controls.get_width()//2, self.HEIGHT - 40))
+        
+        # Draw game over screen if someone won
+        if self.state == self.GAME_OVER:
+            # Create semi-transparent overlay
+            overlay = pygame.Surface((self.WIDTH, self.HEIGHT))
+            overlay.fill((0, 0, 0))
+            overlay.set_alpha(180)
+            self.screen.blit(overlay, (0, 0))
+            
+            # Create message box
+            box_width = 400
+            box_height = 160
+            box_x = self.WIDTH//2 - box_width//2
+            box_y = self.HEIGHT//2 - box_height//2
+            
+            # Draw box background and border
+            pygame.draw.rect(self.screen, (128, 128, 128), 
+                           (box_x, box_y, box_width, box_height))
+            pygame.draw.rect(self.screen, (255, 255, 255), 
+                           (box_x, box_y, box_width, box_height), 3)
+            
+            # Draw winner message
+            winner = "You Won!" if self.player_score >= self.SCORE_LIMIT else "AI Won!"
+            color = (0, 255, 0) if self.player_score >= self.SCORE_LIMIT else (255, 0, 0)
+            text = self.font.render(winner, True, color)
+            score_text = self.small_font.render(f"Final Score: {self.player_score} - {self.ai_score}", 
+                                              True, (255, 255, 255))
+            restart = self.small_font.render("SPACE - Play again    ESC - Menu", 
+                                           True, (255, 255, 255))
+            
+            self.screen.blit(text, (self.WIDTH//2 - text.get_width()//2, box_y + 30))
+            self.screen.blit(score_text, (self.WIDTH//2 - score_text.get_width()//2, box_y + 80))
+            self.screen.blit(restart, (self.WIDTH//2 - restart.get_width()//2, box_y + 120))
         
         pygame.display.flip()
         
@@ -192,13 +250,21 @@ class PongGame:
                             self.selected_difficulty = (self.selected_difficulty + 1) % len(self.difficulties)
                         elif event.key == pygame.K_RETURN:
                             self.state = self.PLAYING
+                        elif event.key == pygame.K_ESCAPE:
+                            return
+                    elif self.state == self.GAME_OVER:
+                        if event.key == pygame.K_SPACE:
+                            self.reset_game()
+                            self.state = self.PLAYING
+                        elif event.key == pygame.K_ESCAPE:
+                            self.state = self.MENU
                     elif event.key == pygame.K_ESCAPE:
                         self.state = self.MENU
                         self.reset_game()
             
             if self.state == self.MENU:
                 self.draw_menu()
-            else:
+            elif self.state == self.PLAYING:
                 # Handle player input
                 keys = pygame.key.get_pressed()
                 if keys[pygame.K_w] and self.player_y > 0:
@@ -209,15 +275,23 @@ class PongGame:
                 # Update game state
                 self.update_ai()
                 self.update_ball()
+                
+                # Check for winner
+                if self.player_score >= self.SCORE_LIMIT or self.ai_score >= self.SCORE_LIMIT:
+                    self.state = self.GAME_OVER
+                
+                self.draw_game()
+            else:  # GAME_OVER state
                 self.draw_game()
             
             self.clock.tick(60)
         
-        pygame.quit()
+        return
 
 def main():
-    game = PongGame()
-    game.run()
+    # Chỉ khởi tạo game mà không chạy
+    return PongGame()
 
 if __name__ == "__main__":
-    main() 
+    # Khi chạy trực tiếp file này, hiển thị thông báo
+    print("Vui lòng chạy game từ menu chính (main.py)") 

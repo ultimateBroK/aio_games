@@ -58,7 +58,7 @@ class GameLauncher:
         self.screen.blit(quit_text, (self.WIDTH - quit_text.get_width() - 20, self.HEIGHT - 30))
         
         # Draw navigation hint with arrow symbols
-        nav_text = self.tiny_font.render("Use ↑ ↓ arrows to navigate", True, (128, 128, 128))
+        nav_text = self.tiny_font.render("Use arrow key UP-DOWN to navigate", True, (128, 128, 128))
         self.screen.blit(nav_text, (20, self.HEIGHT - 30))
         
         # Draw transition effect if active
@@ -78,9 +78,10 @@ class GameLauncher:
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.KEYDOWN:
-                    # Handle Ctrl+Q for quitting
+                    # Handle Ctrl+Q for quitting only in main menu
                     if event.key == pygame.K_q and pygame.key.get_mods() & pygame.KMOD_CTRL:
-                        running = False
+                        if self.transition is None:  # Only quit if not in transition
+                            running = False
                     elif not self.transition:  # Only handle input when not transitioning
                         if event.key == pygame.K_UP:
                             self.selected_index = (self.selected_index - 1) % len(self.games)
@@ -98,14 +99,25 @@ class GameLauncher:
                         # Start game
                         game = self.current_game()
                         self.transition.fading_out = False
-                        game.run()
-                        pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+                        try:
+                            game.run()
+                        except Exception as e:
+                            print(f"Game error: {e}")
+                        finally:
+                            pygame.display.set_mode((self.WIDTH, self.HEIGHT))
                     else:
                         # Return to menu
                         self.transition = None
                         self.current_game = None
             
-            self.draw_menu()
+            try:
+                self.draw_menu()
+            except pygame.error:
+                # Reinitialize display if it was quit
+                self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+                pygame.display.set_caption("Python Arcade Collection")
+                continue
+                
             self.clock.tick(60)
 
         pygame.quit()

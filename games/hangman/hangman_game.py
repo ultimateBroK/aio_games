@@ -277,7 +277,7 @@ class HangmanGame:
         self.screen.blit(instructions, (self.WIDTH//2 - instructions.get_width()//2, self.HEIGHT - 100))
         
         # Quit instruction
-        quit_text = self.small_font.render("Press Q to quit", True, self.GRAY)
+        quit_text = self.small_font.render("Press ESC to quit", True, self.GRAY)
         quit_text.set_alpha(self.menu_alpha)
         self.screen.blit(quit_text, (self.WIDTH - quit_text.get_width() - 20, 20))
         
@@ -293,7 +293,7 @@ class HangmanGame:
         self.draw_hint()
         
         # Draw menu and hint options
-        menu_text = self.small_font.render("ESC - Menu", True, self.GRAY)
+        menu_text = self.small_font.render("ESC - Back to Menu", True, self.GRAY)
         hint_text = self.small_font.render("Ctrl+H - Show Hint", True, self.GRAY)
         self.screen.blit(menu_text, (20, 20))
         self.screen.blit(hint_text, (20, 60))
@@ -320,13 +320,18 @@ class HangmanGame:
             # Draw message
             if self.won:
                 text = self.font.render("You Won!", True, self.GREEN)
+                word_text = self.small_font.render(f"Word: {self.word}", True, self.WHITE)
+                self.screen.blit(text, (self.WIDTH//2 - text.get_width()//2, box_y + 40))
+                self.screen.blit(word_text, (self.WIDTH//2 - word_text.get_width()//2, box_y + 90))
             else:
-                text = self.font.render(f"Game Over! Word: {self.word}", True, self.RED)
-            self.screen.blit(text, (self.WIDTH//2 - text.get_width()//2, box_y + 50))
+                text = self.font.render("Game Over!", True, self.RED)
+                word_text = self.small_font.render(f"Word: {self.word}", True, self.WHITE)
+                self.screen.blit(text, (self.WIDTH//2 - text.get_width()//2, box_y + 40))
+                self.screen.blit(word_text, (self.WIDTH//2 - word_text.get_width()//2, box_y + 90))
             
             # Draw instructions
             restart = self.small_font.render("SPACE - Play again    ESC - Menu", True, self.WHITE)
-            self.screen.blit(restart, (self.WIDTH//2 - restart.get_width()//2, box_y + 120))
+            self.screen.blit(restart, (self.WIDTH//2 - restart.get_width()//2, box_y + 140))
         
         pygame.display.flip()
         
@@ -337,11 +342,6 @@ class HangmanGame:
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.KEYDOWN:
-                    # Handle Ctrl+Q for quitting anytime
-                    if event.key == pygame.K_q and pygame.key.get_mods() & pygame.KMOD_CTRL:
-                        running = False
-                        continue
-                        
                     if self.state == self.MENU:
                         if event.key == pygame.K_UP:
                             self.selected_category = (self.selected_category - 1) % len(self.category_list)
@@ -351,6 +351,8 @@ class HangmanGame:
                             self.state = self.PLAYING
                             self.menu_alpha = 0  # Reset fade for next menu entry
                             self.reset_game()
+                        elif event.key == pygame.K_ESCAPE:
+                            running = False
                     else:  # Đang trong game
                         if not self.game_over:
                             if event.key == pygame.K_ESCAPE:
@@ -381,8 +383,13 @@ class HangmanGame:
                 self.draw_game()
             
             self.clock.tick(60)
-        
-        pygame.quit()
+            
+        # Clean up before returning to main menu
+        try:
+            pygame.display.quit()
+            pygame.display.init()
+        except pygame.error:
+            pass
 
 def main():
     game = HangmanGame()
