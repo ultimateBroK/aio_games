@@ -1,60 +1,110 @@
-# Python Games Collection
+# Python Arcade Collection
 
-A collection of classic games implemented in Python using Pygame.
+A collection of classic arcade games implemented in Python using Pygame.
 
 ## Games Included
 
-1. Snake Game - Classic snake game where you control a snake to eat apples and grow longer
-2. Hangman - Word guessing game where you try to guess the word before the hangman is complete
-3. Pong - Classic two-player paddle game where players bounce a ball back and forth
-4. Tetris - Classic block-stacking puzzle game where you arrange falling pieces
+### 1. Snake Game
+- Classic snake gameplay with modern visuals
+- Grid-based movement with wall crossing feature
+- Score tracking and game over screen
+- Smooth animations and visual effects
+- Controls: Arrow keys to move, ESC for menu
 
-## Requirements
+### 2. Hangman
+- Multiple word categories: Animals, Crypto, AI, and LLMs
+- Hint system (Ctrl+H to show hints)
+- Animated drawing of the hangman
+- Word tracking to avoid repetition
+- Visual feedback for correct/incorrect guesses
+- Controls: Type letters to guess, ESC for menu
 
-- Python 3.6+
-- Pygame 2.5.2
+### 3. Pong
+- Single-player vs AI with three difficulty levels
+- Dynamic AI behavior with realistic paddle movement
+- Score limit of 10 points to win
+- Player and AI labels with score display
+- Controls: W/S keys to move, ESC for menu
 
-## Installation
+### 4. Tetris
+- Classic Tetris gameplay with modern interface
+- Score system and level progression
+- Next piece preview and score display
+- Controls: Arrow keys to move/rotate, ESC for menu
 
-1. Clone this repository
-2. Install the requirements:
+## Features
+
+### Main Menu
+- Dynamic game previews with animations
+- Smooth transitions between games
+- Easy navigation with arrow keys
+- Visual feedback for selected games
+
+### Common Features
+- Consistent ESC key behavior across all games
+- Modern UI with clean visuals
+- Score tracking and high scores
+- Game over screens with restart options
+- Smooth animations and transitions
+
+## Technical Details
+
+### Requirements
+- Python 3.x
+- Pygame library
+
+### Installation
+1. Clone the repository
+2. Install dependencies:
 ```bash
-pip install -r requirements.txt
+pip install pygame
 ```
-
-## How to Run
-
-Run the main launcher:
+3. Run the game:
 ```bash
 python main.py
 ```
 
-Then use the following controls:
-- Press `1` to play Snake
-- Press `2` to play Hangman
-- Press `3` to play Pong
-- Press `4` to play Tetris
-- Press `Q` to quit
+### Controls
+- Arrow Keys: Navigation in menus and games
+- ESC: Return to previous menu/quit
+- Game-specific controls are shown in each game
 
-### Snake Game Controls
-- Use arrow keys to control the snake's direction
-- Press SPACE to restart after game over
+## Development
 
-### Hangman Controls
-- Type letters to guess the word
-- Press SPACE to restart after game over
+### Code Structure
+- `main.py`: Main game launcher
+- `games/`: Individual game modules
+  - `snake/`: Snake game files
+  - `hangman/`: Hangman game files
+  - `pong/`: Pong game files
+  - `tetris/`: Tetris game files
+- `utils/`: Shared utilities and effects
+  - `effects.py`: Animation and visual effects
+  - `sounds/`: Game sound effects
 
-### Pong Controls
-- Left player: W/S keys to move paddle up/down
-- Right player: UP/DOWN arrow keys to move paddle up/down
-- First to 5 points wins
-- Press SPACE to restart after game over
+### Features Added
+- Dynamic game previews in main menu
+- Transition effects between screens
+- Unified control scheme
+- Score tracking system
+- Sound effects for games
+- Error handling and performance optimizations
 
-### Tetris Controls
-- Left/Right arrow keys to move piece
-- Up arrow key to rotate piece
-- Down arrow key to speed up falling
-- Press SPACE to restart after game over
+## Updates and Changes
+- Added wall crossing feature to Snake game
+- Implemented AI difficulty levels in Pong
+- Enhanced Hangman with categories and hints
+- Added score limit and winner screen to Pong
+- Improved visual feedback across all games
+- Fixed various bugs and performance issues
+- Added preview animations for all games
+- Standardized menu navigation and controls
 
-### General Controls
-- Press ESC in any game to return to the main menu 
+## Contributing
+Feel free to contribute to this project by:
+- Reporting bugs
+- Suggesting new features
+- Submitting pull requests
+
+## License
+This project is open source and available under the MIT License. 
