@@ -16,7 +16,7 @@ class PongGame:
         # Game states
         self.MENU = 0
         self.PLAYING = 1
-        self.GAME_OVER = 2  # Thêm trạng thái game over
+        self.GAME_OVER = 2  # Add game over state
         self.state = self.MENU
         
         # Score limit
@@ -251,13 +251,7 @@ class PongGame:
                         elif event.key == pygame.K_RETURN:
                             self.state = self.PLAYING
                         elif event.key == pygame.K_ESCAPE:
-                            return
-                    elif self.state == self.GAME_OVER:
-                        if event.key == pygame.K_SPACE:
-                            self.reset_game()
-                            self.state = self.PLAYING
-                        elif event.key == pygame.K_ESCAPE:
-                            self.state = self.MENU
+                            return  # Return to main menu
                     elif event.key == pygame.K_ESCAPE:
                         self.state = self.MENU
                         self.reset_game()
@@ -289,9 +283,9 @@ class PongGame:
         return
 
 def main():
-    # Chỉ khởi tạo game mà không chạy
+    # Only initialize the game without running
     return PongGame()
 
 if __name__ == "__main__":
-    # Khi chạy trực tiếp file này, hiển thị thông báo
-    print("Vui lòng chạy game từ menu chính (main.py)") 
+    # When running this file directly, show message
+    print("Please run the game from the main menu (main.py)") 

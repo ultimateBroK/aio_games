@@ -138,7 +138,7 @@ class SnakeGame:
                     running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        return  # Trở về menu chính
+                        return  # Return to main menu
                     elif not self.game_over:
                         if event.key == pygame.K_UP and self.direction != (0, 1):
                             self.direction = (0, -1)
@@ -156,7 +156,7 @@ class SnakeGame:
                 head = self.snake[0]
                 new_head = (head[0] + self.direction[0], head[1] + self.direction[1])
                 
-                # Xử lý đi xuyên tường
+                # Handle wall crossing
                 new_head = ((new_head[0] + self.GRID_WIDTH) % self.GRID_WIDTH,
                            (new_head[1] + self.GRID_HEIGHT) % self.GRID_HEIGHT)
                 
@@ -175,7 +175,9 @@ class SnakeGame:
             self.clock.tick(10)  # Control game speed
 
 def main():
+    # Only initialize the game without running
     return SnakeGame()
 
 if __name__ == "__main__":
-    print("Vui lòng chạy game từ menu chính (main.py)") 
+    # When running this file directly, show message
+    print("Please run the game from the main menu (main.py)") 

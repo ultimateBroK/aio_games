@@ -353,7 +353,7 @@ class HangmanGame:
                             self.reset_game()
                         elif event.key == pygame.K_ESCAPE:
                             running = False
-                    else:  # Đang trong game
+                    else:  # In game
                         if not self.game_over:
                             if event.key == pygame.K_ESCAPE:
                                 self.state = self.MENU
