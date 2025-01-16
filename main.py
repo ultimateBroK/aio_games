@@ -9,9 +9,10 @@ class GameLauncher:
         self.WIDTH = 800
         self.HEIGHT = 600
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
-        pygame.display.set_caption("Game Launcher")
+        pygame.display.set_caption("Python Arcade Collection")
         self.font = pygame.font.Font(None, 48)
         self.small_font = pygame.font.Font(None, 36)
+        self.tiny_font = pygame.font.Font(None, 24)
         self.clock = pygame.time.Clock()
         
         # Initialize effects
@@ -19,7 +20,13 @@ class GameLauncher:
         self.transition = None
         self.preview = GamePreview(self.WIDTH, self.HEIGHT)
         self.current_game = None
-        self.selected_game = None
+        self.selected_index = 0
+        self.games = [
+            ("Snake Game", SnakeGame),
+            ("Hangman", HangmanGame),
+            ("Pong", PongGame),
+            ("Tetris", TetrisGame)
+        ]
 
     def draw_menu(self):
         self.screen.fill((0, 0, 0))
@@ -29,29 +36,30 @@ class GameLauncher:
         self.background.draw(self.screen)
         
         # Title
-        title = self.font.render("Choose a Game", True, (255, 255, 255))
+        title = self.font.render("Python Arcade Collection", True, (255, 255, 255))
         self.screen.blit(title, (self.WIDTH//2 - title.get_width()//2, 100))
         
         # Game options
-        games = [
-            ("1. Snake Game", SnakeGame),
-            ("2. Hangman", HangmanGame),
-            ("3. Pong vs AI", PongGame),
-            ("4. Tetris", TetrisGame),
-            ("Q. Quit", None)
-        ]
-        
         start_y = 250
         spacing = 60
-        for i, (text, game) in enumerate(games):
-            game_text = self.small_font.render(text, True, (255, 255, 255))
+        for i, (text, game) in enumerate(self.games):
+            color = (255, 255, 255) if i == self.selected_index else (128, 128, 128)
+            game_text = self.small_font.render(text, True, color)
             text_pos = (self.WIDTH//2 - game_text.get_width()//2, start_y + i * spacing)
             self.screen.blit(game_text, text_pos)
             
             # Draw preview for selected game
-            if game and text == self.selected_game:
+            if i == self.selected_index:
                 preview_pos = (self.WIDTH//2 + 150, start_y + i * spacing - 50)
-                self.preview.draw(self.screen, text[3:], preview_pos)
+                self.preview.draw(self.screen, text, preview_pos)
+        
+        # Draw quit text in bottom right corner
+        quit_text = self.tiny_font.render("Ctrl+Q to Quit", True, (128, 128, 128))
+        self.screen.blit(quit_text, (self.WIDTH - quit_text.get_width() - 20, self.HEIGHT - 30))
+        
+        # Draw navigation hint with arrow symbols
+        nav_text = self.tiny_font.render("Use ↑ ↓ arrows to navigate", True, (128, 128, 128))
+        self.screen.blit(nav_text, (20, self.HEIGHT - 30))
         
         # Draw transition effect if active
         if self.transition:
@@ -70,36 +78,17 @@ class GameLauncher:
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.KEYDOWN:
-                    if not self.transition:  # Only handle input when not transitioning
-                        if event.key == pygame.K_1:
-                            self.selected_game = "1. Snake Game"
-                            self.start_transition(SnakeGame)
-                        elif event.key == pygame.K_2:
-                            self.selected_game = "2. Hangman"
-                            self.start_transition(HangmanGame)
-                        elif event.key == pygame.K_3:
-                            self.selected_game = "3. Pong vs AI"
-                            self.start_transition(PongGame)
-                        elif event.key == pygame.K_4:
-                            self.selected_game = "4. Tetris"
-                            self.start_transition(TetrisGame)
-                        elif event.key == pygame.K_q:
-                            running = False
-                elif event.type == pygame.MOUSEMOTION:
-                    # Update preview on hover
-                    mouse_y = event.pos[1]
-                    start_y = 250
-                    spacing = 60
-                    for i, (text, _) in enumerate([
-                        ("1. Snake Game", SnakeGame),
-                        ("2. Hangman", HangmanGame),
-                        ("3. Pong vs AI", PongGame),
-                        ("4. Tetris", TetrisGame),
-                        ("Q. Quit", None)
-                    ]):
-                        if start_y + i * spacing - 20 <= mouse_y <= start_y + i * spacing + 20:
-                            self.selected_game = text
-                            break
+                    # Handle Ctrl+Q for quitting
+                    if event.key == pygame.K_q and pygame.key.get_mods() & pygame.KMOD_CTRL:
+                        running = False
+                    elif not self.transition:  # Only handle input when not transitioning
+                        if event.key == pygame.K_UP:
+                            self.selected_index = (self.selected_index - 1) % len(self.games)
+                        elif event.key == pygame.K_DOWN:
+                            self.selected_index = (self.selected_index + 1) % len(self.games)
+                        elif event.key == pygame.K_RETURN:
+                            _, game_class = self.games[self.selected_index]
+                            self.start_transition(game_class)
             
             # Update and handle transition
             if self.transition:
