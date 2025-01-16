@@ -12,10 +12,15 @@ A collection of classic arcade games implemented in Python using Pygame.
 - Controls: Arrow keys to move, ESC for menu
 
 ### 2. Hangman
-- Multiple word categories: Animals, Crypto, AI, and LLMs
+- Multiple word categories with extensive vocabulary (100+ words each):
+  - Animals: From common pets to exotic wildlife
+  - Crypto: Comprehensive blockchain and cryptocurrency terms
+  - AI: Artificial Intelligence concepts and terminology
+  - LLMs: Large Language Models and NLP terminology
+- Smart word selection system to avoid repetition
+- Detailed hints for educational value
 - Hint system (Ctrl+H to show hints)
 - Animated drawing of the hangman
-- Word tracking to avoid repetition
 - Visual feedback for correct/incorrect guesses
 - Controls: Type letters to guess, ESC for menu
 
@@ -93,7 +98,8 @@ python main.py
 ## Updates and Changes
 - Added wall crossing feature to Snake game
 - Implemented AI difficulty levels in Pong
-- Enhanced Hangman with categories and hints
+- Enhanced Hangman with expanded vocabulary (400+ words total)
+- Added detailed hints and descriptions for all words
 - Added score limit and winner screen to Pong
 - Improved visual feedback across all games
 - Fixed various bugs and performance issues
