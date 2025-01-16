@@ -17,7 +17,7 @@ class GameLauncher:
         self.screen.fill((0, 0, 0))
         
         # Title
-        title = self.font.render("Choose a Game", True, (255, 255, 255))4
+        title = self.font.render("Choose a Game", True, (255, 255, 255))
         self.screen.blit(title, (self.WIDTH//2 - title.get_width()//2, 100))
         
         # Game options
